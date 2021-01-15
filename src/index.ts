@@ -1,23 +1,35 @@
 import 'reflect-metadata';
+import * as express from "express";
+import { Request, Response } from "express";
 import { createConnection } from 'typeorm';
 import { User } from './entity/User';
 import { Bootstrap } from './bootstrap';
 
 createConnection()
   .then(async (connection) => {
-    /*console.log('Inserting a new user into the database...');
-    const user = new User('Timber', 'Saw', 25);
-
-    await connection.manager.save(user);
-    console.log('Saved a new user with id: ' + user.id);
-
-    console.log('Loading users from the database...');
-    const users = await connection.manager.find(User);
-    console.log('Loaded users: ', users);
-
-    console.log('Here you can setup and run express/koa/any other framework.'); */
     await Bootstrap().catch((err) => {
       console.log(err);
+    });
+    const userRepository = connection.getRepository(User);
+    const app = express();
+    app.use(express.json());
+
+    // register routes
+
+    app.get("/users", async function (req: Request, res: Response) {
+      const users = await userRepository.find();
+      res.json(users);
+    });
+
+    app.post("/user", async function (req: Request, res: Response) {
+      const user = await userRepository.create(new User("test", "super", 5));
+      await userRepository.save(user);
+      res.json(user);
+    });
+
+    //start express server
+    app.listen(3000, () => {
+      console.log(`Server Started at Port, http://localhost:3000`);
     });
   })
   .catch((error) => console.log(error));
