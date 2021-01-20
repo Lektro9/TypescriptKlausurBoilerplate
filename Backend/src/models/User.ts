@@ -18,4 +18,9 @@ export class User {
 
   @Column()
   age: number;
+
+  /**
+   * deleteWithAPI
+   * löscht mir einem API call den User
+   */
 }

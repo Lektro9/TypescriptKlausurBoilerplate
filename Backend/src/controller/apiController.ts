@@ -9,6 +9,7 @@ export class apiController {
     app: express.Application
     userRepository: Repository<User>
     connection: Connection
+    personen: User[]
 
     constructor() {
         this.createDBConnection().then((connection) => {
@@ -16,7 +17,6 @@ export class apiController {
             this.userRepository = this.connection.getRepository(User);
         });
         this.app = express();
-
     }
 
     /**
@@ -44,17 +44,24 @@ export class apiController {
      * Definiert Routen, Methoden und deren zugehörige Funktionen
      */
     public createRoutes(): void {
-        this.app.get("/users", this.showAllUsers.bind(this));
+        this.app.get("/users", this.getAllUsers.bind(this));
         this.app.post("/user", this.createUser.bind(this));
+        this.app.delete("/user/:personID", this.deleteUser.bind(this));
+        this.app.put("/user/:personID", this.updateUser.bind(this));
     }
 
     /**
      * showAllUsers
      * zeige alle Nutzer aus der Datenbank an
      */
-    public async showAllUsers(req: Request, res: Response): Promise<void> {
-        const users = await this.userRepository.find();
+    public async getAllUsers(req: Request, res: Response): Promise<void> {
+        const users = await this.getAllPersonsFromDB();
         res.json(users);
+    }
+
+    private async getAllPersonsFromDB(): Promise<User[]> {
+        const users = await this.userRepository.find();
+        return users;
     }
 
     /**
@@ -72,6 +79,40 @@ export class apiController {
             res.send(
                 "wrong format, only json allowed: {'firstName': 'string', 'lastName': 'string', 'age': number}"
             );
+        }
+    }
+
+    /**
+     * deleteUser
+     * Löscht einen Nutzer aus der DB
+     */
+    public async deleteUser(req: Request, res: Response): Promise<void> {
+        const personID = req.params.personID;
+        const deleteResult = await this.userRepository.delete(personID);
+        if (deleteResult.affected) {
+            res.send(`Person mit ID "${personID}" gelöscht`);
+        } else {
+            res.status(400)
+            res.send("Person nicht gefunden")
+        }
+    }
+
+    /**
+     * updateUser
+     * Löscht einen Nutzer aus der DB
+     */
+    public async updateUser(req: Request, res: Response): Promise<void> {
+        const personID = req.params.personID;
+        if (req.is("json") && req.body && personID) {
+            let personToUpdate = await this.userRepository.findOne(personID);
+            personToUpdate.firstName = req.body.firstName;
+            personToUpdate.lastName = req.body.lastName;
+            personToUpdate.age = req.body.age;
+            await this.userRepository.save(personToUpdate);
+            res.send(`Person mit ID: ${personID} wurde geupdated.`)
+        } else {
+            res.status(400)
+            res.send("Person nicht gefunden, oder falsches Objekt übergeben.")
         }
     }
 
