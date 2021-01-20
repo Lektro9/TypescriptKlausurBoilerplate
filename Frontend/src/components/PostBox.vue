@@ -12,8 +12,12 @@
     </ul>
     <b-list-group class="userlist">
       <b-list-group-item v-for="user in users" :key="user.id">
+        {{ user.id }}
         {{ user.firstName }}
         {{ user.lastName }}
+        <b-button variant="danger" @click="deleteRequest(user.id)"
+          >Delete</b-button
+        >
       </b-list-group-item>
     </b-list-group>
     <b-container class="pt-3">
@@ -21,8 +25,9 @@
         <b-col>
           <b-form-input
             class="mb-2"
-            v-model="url"
-            placeholder="URL eingeben"
+            type="number"
+            v-model="inputID"
+            placeholder="UserID eingeben (nur zum updaten)"
           ></b-form-input>
           <b-form-input
             class="mb-2"
@@ -42,9 +47,10 @@
           ></b-form-input>
           <b-button variant="success" @click="getRequest">GET</b-button>
           <b-button variant="dark" @click="postRequest">POST</b-button>
+          <b-button variant="dark" @click="putRequest()">UPDATE</b-button>
         </b-col>
       </b-row>
-      {{ $data }}
+      {{ this.messageFromServer }}
     </b-container>
   </div>
 </template>
@@ -60,11 +66,13 @@ export default {
   data: function () {
     return {
       users: [],
+      inputID: "",
       firstName: "",
       lastName: "",
-      age: 0,
+      age: "",
       newUser: "",
       url: "http://localhost:3000",
+      messageFromServer: "",
     };
   },
   methods: {
@@ -94,9 +102,10 @@ export default {
         )
         .then((response) => {
           console.log(response.data);
+          this.users.push(response.data);
           this.firstName = "";
           this.lastName = "";
-          this.age = 0;
+          this.age = "";
         })
         .catch(function (error) {
           console.log(error);
@@ -104,20 +113,33 @@ export default {
     },
     putRequest() {
       axios
-        .put(
-          this.url,
-          {
-            content: this.newPost,
-          },
-          {
-            withCredentials: true,
-          }
-        )
+        .put("http://localhost:3000/user/" + this.inputID, {
+          firstName: this.firstName,
+          lastName: this.lastName,
+          age: this.age,
+        })
         .then((response) => {
-          this.posts = response.data;
-          this.posts.reverse();
-          this.newPost = "";
+          console.log(response.data);
+          this.messageFromServer = JSON.stringify(response.data);
+          this.users = this.users.map((u) => {
+            if (u.id == this.inputID) {
+              u.firstName = this.firstName;
+              u.lastName = this.lastName;
+              u.age = this.age;
+            }
+            return u;
+          });
+          this.firstName = "";
+          this.lastName = "";
+          this.age = "";
         });
+    },
+    deleteRequest(userID) {
+      axios.delete("http://localhost:3000/user/" + userID).then((response) => {
+        console.log(response.data);
+        this.messageFromServer = JSON.stringify(response.data);
+        this.users = this.users.filter((u) => u.id !== userID);
+      });
     },
   },
   mounted() {
