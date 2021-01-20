@@ -1,11 +1,6 @@
-import 'reflect-metadata';
-import { Controller } from "./controller/controller"
-import { createConnection } from 'typeorm';
+import { apiController } from "./controller/apiController";
 
-
-createConnection()
-  .then(async (connection) => {
-    const verwalter = new Controller(connection);
-    verwalter.createRoutes();
-  })
-  .catch((error) => console.log(error));
+const verwalter = new apiController();
+verwalter.useMiddleware();
+verwalter.createRoutes();
+verwalter.startWebserver();
