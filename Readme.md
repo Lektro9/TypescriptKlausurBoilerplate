@@ -7,7 +7,7 @@
 ```
 npm install
 ```
-- warten bis dependencies installiert wurden
+- warten bis dependencies installiert wurden (erstellt automatisch einen node_modules Ordner)
 - danach Befehl ausführen (für Backend): 
 ```
 npm start
