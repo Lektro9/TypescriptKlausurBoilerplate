@@ -1,3 +1,6 @@
+//Author: Lars Kroll
+//Datum: 21.01.2021
+
 import '@babel/polyfill'
 import 'mutationobserver-shim'
 import Vue from 'vue'

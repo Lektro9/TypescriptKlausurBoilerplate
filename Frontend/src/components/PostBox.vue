@@ -1,3 +1,5 @@
+<!-- Author: Lars Kroll --> 
+<!-- Datum: 21.01.2021 --> 
 <template>
   <div>
     <b-navbar type="dark" variant="dark">

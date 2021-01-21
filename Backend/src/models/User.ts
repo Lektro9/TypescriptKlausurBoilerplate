@@ -1,3 +1,6 @@
+//Author: Lars Kroll
+//Datum: 21.01.2021
+
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()

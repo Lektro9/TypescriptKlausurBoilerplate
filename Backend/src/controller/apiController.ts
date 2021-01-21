@@ -1,3 +1,6 @@
+//Author: Lars Kroll
+//Datum: 21.01.2021
+
 import 'reflect-metadata';
 import { User } from '../models/User';
 import { createConnection, Repository, Connection } from 'typeorm';
@@ -37,6 +40,8 @@ export class apiController {
         //setzt CORS Header 'Access-Control-Allow-Origin' und welche REST-Methoden von wem genutzt werden dürfen
         //hier: alle dürfen alles
         this.app.use(cors());
+        //statische html-Dateien im Ordner freigeben
+        this.app.use(express.static("buildFrontend", { etag: false }));
     }
 
     /**
